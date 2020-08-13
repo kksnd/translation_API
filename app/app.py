@@ -1,6 +1,6 @@
 from flask import Flask, request, Response
 import xmltodict
-import translation
+import translation_logic
 
 
 app = Flask(__name__)
@@ -26,12 +26,14 @@ def validate_request(request):
     return None, status, error_message
 
 
-@app.route('/translate/to_jp', methods=['GET', 'POST'])
-def translate_to_jp():
+def translate(out_lang):
     request_dict, status, error_message = validate_request(request)
     if status == 0:
         text = request_dict['request']['text']
-        translated = translator_to_jp.translate(text)
+        if out_lang == 'en':
+            translated = translator_to_en.translate(text)
+        elif out_lang == 'ja':
+            translated = translator_to_jp.translate(text)
         app.logger.info(text)
         app.logger.info(translated)
     else:
@@ -46,8 +48,18 @@ def translate_to_jp():
     return response
 
 
+@app.route('/translate/to_ja', methods=['GET', 'POST'])
+def translate_to_ja():
+    return translate('ja')
+
+
+@app.route('/translate/to_en', methods=['GET', 'POST'])
+def translate_to_en():
+    return translate('en')
+
+
 if __name__ == '__main__':
-    translator_to_en = translation.Google_Translator('en')
-    translator_to_jp = translation.Google_Translator('ja')
+    translator_to_en = translation_logic.Google_Translator('en')
+    translator_to_jp = translation_logic.Google_Translator('ja')
     app.secret_key = 'Ilikecakes'
     app.run(host='0.0.0.0')
