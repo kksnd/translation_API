@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 import xmltodict
 import translation_logic
 
@@ -48,6 +48,28 @@ def translate(out_lang):
     return response
 
 
+### Health Check ###
+@app.route('/healthcheck', methods=['GET', 'POST'])
+def hello():
+    return 'Hello, this is translation API'
+
+
+@app.route('/healthcheck/json', methods=['GET', 'POST'])
+def hello_json():
+    return jsonify({"hello": 'Hello, this is translation API'})
+
+
+@app.route('/healthcheck/xml', methods=['GET', 'POST'])
+def hello_xml():
+    response = Response(
+        response=xmltodict.unparse({'hello': 'Hello, this is translation API'}),
+        status=200, mimetype='application/xml')
+    response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+    return response
+
+
+
+### Translation ###
 @app.route('/translate/to_ja', methods=['GET', 'POST'])
 def translate_to_ja():
     return translate('ja')
